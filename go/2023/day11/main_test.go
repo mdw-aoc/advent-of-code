@@ -4,11 +4,11 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/mdwhatcott/advent-of-code-inputs/v2/inputs"
-	_ "github.com/mdwhatcott/funcy"
-	_ "github.com/mdwhatcott/go-set/v2/set"
-	_ "github.com/mdwhatcott/must/must"
-	"github.com/mdwhatcott/testing/should"
+	"github.com/mdw-aoc/inputs/v2/inputs"
+	_ "github.com/mdw-go/funcy"
+	_ "github.com/mdw-go/must/must"
+	_ "github.com/mdw-go/set/v2/set"
+	"github.com/mdw-go/testing/should"
 )
 
 const TODO = -1
