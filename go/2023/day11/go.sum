@@ -1,7 +1,7 @@
-github.com/mdw-aoc/go-lib v1.1.0 h1:pgrYjQHQBaqgNwkdTk8wfbqeeUwc1mtSKQuIj1s6AoE=
-github.com/mdw-aoc/go-lib v1.1.0/go.mod h1:VO+5+s+W1wvLGYT+f/tNKtffqky2kcoireDsaBSaeG4=
 github.com/mdw-go/funcy v1.13.0 h1:HHlf+JO/1GvbH6DLtt+QPanf9jHv4nlX9aRE0fteqkE=
 github.com/mdw-go/funcy v1.13.0/go.mod h1:pEMFKhuAq1u6bbXZtw3xskHru4YfabK/Rv9U0UgwAos=
+github.com/mdw-go/grid v1.1.0 h1:YuYKnNgsFhfccb6yzIkj7ZSdYaSLRtDXrWNDy5etkl4=
+github.com/mdw-go/grid v1.1.0/go.mod h1:FIL0NQ1E+eW5iXUuNCS7cy4MWdqaJ9XV2OyiLK7wIoc=
 github.com/mdw-go/must v1.4.0 h1:rxXhHkmDAsM9iq86V8+jFUNtPHW+CbL5glMrTa8Os/M=
 github.com/mdw-go/must v1.4.0/go.mod h1:egFwsdnV884XLvyCRH1qZ922IpuuemotO7ej0zEkcyM=
 github.com/mdw-go/set/v2 v2.4.0 h1:lj9RLQkbUuILp1tz4JKIG0WMWjnIr471ZnUkPpDZpDA=
