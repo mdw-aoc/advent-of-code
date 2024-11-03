@@ -1,38 +1,20 @@
 package day11
 
 import (
-	"strings"
+	"slices"
 
+	. "github.com/mdw-go/funcy/ranger"
 	"github.com/mdw-go/grid"
+	"github.com/mdw-go/set"
 )
 
-func expandUniverse(lines []string) (result []string) {
-	lines = expandRows(lines)
-	lines = rotateRows(lines) // 90
-	lines = expandRows(lines)
-	lines = rotateRows(lines) // 180
-	lines = rotateRows(lines) // 270
-	lines = rotateRows(lines) // 360
-	return lines
+func Part1(lines []string) (result int) {
+	return Part2(lines, 2)
 }
-func expandRows(lines []string) (result []string) {
-	for _, line := range lines {
-		if !strings.Contains(line, "#") {
-			result = append(result, strings.Repeat(".", len(line)))
-		}
-		result = append(result, line)
-	}
-	return result
+func Part2(lines []string, timeFactor int) int {
+	return sumDistances(galaxyPairs(expandGalaxies(plotGalaxies(lines), timeFactor)))
 }
-func rotateRows(lines []string) (result []string) {
-	for x := 0; x < len(lines[0]); x++ {
-		result = append(result, "")
-		for _, line := range lines {
-			result[x] += line[x : x+1]
-		}
-	}
-	return result
-}
+
 func plotGalaxies(lines []string) (result []grid.Point[int]) {
 	for y, line := range lines {
 		for x, char := range line {
@@ -43,13 +25,42 @@ func plotGalaxies(lines []string) (result []grid.Point[int]) {
 	}
 	return result
 }
-func galaxyPairs(galaxies []grid.Point[int]) (result []Pair[grid.Point[int]]) {
+func galaxyPairs(galaxies []grid.Point[int]) (result []pair[grid.Point[int]]) {
 	for g, g1 := range galaxies {
 		for _, g2 := range galaxies[g+1:] {
-			result = append(result, Pair[grid.Point[int]]{A: g1, B: g2})
+			result = append(result, pair[grid.Point[int]]{A: g1, B: g2})
 		}
 	}
 	return result
 }
+func sumDistances(pairs []pair[grid.Point[int]]) (result int) {
+	for _, pair := range pairs {
+		result += grid.CityBlockDistance(pair.A, pair.B)
+	}
+	return result
+}
+func expandGalaxies(galaxies []grid.Point[int], timeFactor int) (result []grid.Point[int]) {
+	G := Iterator(galaxies)
+	X := Map(grid.Point[int].X, G)
+	Y := Map(grid.Point[int].Y, G)
+	gapsX := slices.Sorted[int](set.FromSeq(Range(0, Max(X))).Difference(set.FromSeq(X)).All())
+	gapsY := slices.Sorted[int](set.FromSeq(Range(0, Max(Y))).Difference(set.FromSeq(Y)).All())
+	for galaxy := range G {
+		dx := 0
+		dy := 0
+		for _, gapX := range gapsX {
+			if gapX < galaxy.X() {
+				dx += timeFactor - 1
+			}
+		}
+		for _, gapY := range gapsY {
+			if gapY < galaxy.Y() {
+				dy += timeFactor - 1
+			}
+		}
+		result = append(result, galaxy.Move(grid.NewDirection(dx, dy)))
+	}
+	return result
+}
 
-type Pair[T any] struct{ A, B T }
+type pair[T any] struct{ A, B T }
