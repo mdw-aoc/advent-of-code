@@ -1,13 +1,11 @@
-module github.com/mdwhatcott/advent-of-code/go/2023/day10
+module github.com/mdw-aoc/advent-of-code/go/2023/day10
 
-go 1.22
+go 1.23
 
 require (
-	github.com/mdwhatcott/advent-of-code-inputs v1.2.0
-	github.com/mdwhatcott/funcy v1.8.0
-	github.com/mdwhatcott/go-set/v2 v2.0.1
-	github.com/mdwhatcott/must v1.2.0
-	github.com/mdwhatcott/testing v1.3.0
+	github.com/mdw-aoc/inputs/v2 v2.0.0-00010101000000-000000000000
+	github.com/mdw-go/set v1.1.0
+	github.com/mdw-go/testing v1.5.0
 )
 
-replace github.com/mdwhatcott/advent-of-code-inputs => /Users/mike/src/github.com/mdwhatcott/advent-of-code-inputs
+replace github.com/mdw-aoc/inputs/v2 => /Users/mike/src/github.com/mdw-aoc/inputs

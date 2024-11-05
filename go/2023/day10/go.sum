@@ -1,8 +1,4 @@
-github.com/mdwhatcott/funcy v1.8.0 h1:w+p8wWHBWTlC74oBcMfE5DZ0I9hycMvhDrtiv6L4y8g=
-github.com/mdwhatcott/funcy v1.8.0/go.mod h1:hry3gV/UZ7hDs9QaoV4k27e6w/uHWMiALhxvHQyqphg=
-github.com/mdwhatcott/go-set/v2 v2.0.1 h1:KEPe5jrZZhJd7Al6ZyENFfXKz34S21tjoubMN9kfMpg=
-github.com/mdwhatcott/go-set/v2 v2.0.1/go.mod h1:gnLMxayqGJiKQ9uZoqoZLvHuvxgmcnCF1ldKrWSlOgU=
-github.com/mdwhatcott/must v1.2.0 h1:X+Ay0ZIp2pMFT0HpFwxg8sCvZOAeyRPb+yQ477DWhbs=
-github.com/mdwhatcott/must v1.2.0/go.mod h1:3rldN1MW4me3st97YNJxDm3L+zo5R5kKoh7Km75kWnY=
-github.com/mdwhatcott/testing v1.3.0 h1:46EDnWggTiaqd7RlAacvLUxlp7+c75XheqmmuT+e4Ko=
-github.com/mdwhatcott/testing v1.3.0/go.mod h1:qw9pmVND0BqPmN/DE1BtaVzIvmQcffQAY+DOpnZ3qMo=
+github.com/mdw-go/set v1.1.0 h1:/p7kL1Skibx9gp8RQwZ740A0gbhVqJbVHJMqgl5sqY8=
+github.com/mdw-go/set v1.1.0/go.mod h1:3lhn+YaNQVLT8xSZmPTpPpUIlS3LyaxyRUHvexnvaqc=
+github.com/mdw-go/testing v1.5.0 h1:o7uprSvVM61lSpnLOKNJ/joFq7zCvm7kwAJ948exV2o=
+github.com/mdw-go/testing v1.5.0/go.mod h1:PpDrOp7WpQjh7nREEh8v0d7DZDA4Y/ffLEh/ixCGLlY=

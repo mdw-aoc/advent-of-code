@@ -2,20 +2,18 @@ package day10
 
 import (
 	"fmt"
+	"slices"
 	"testing"
 
-	"github.com/mdwhatcott/advent-of-code-inputs/inputs"
-	_ "github.com/mdwhatcott/funcy"
-	"github.com/mdwhatcott/go-set/v2/set"
-	_ "github.com/mdwhatcott/go-set/v2/set"
-	_ "github.com/mdwhatcott/must/must"
-	"github.com/mdwhatcott/testing/should"
+	"github.com/mdw-aoc/inputs/v2/inputs"
+	"github.com/mdw-go/set"
+	"github.com/mdw-go/testing/should"
 )
 
 const TODO = -1
 
 var (
-	inputLines  = inputs.Read(2023, 10).Lines()
+	inputLines = slices.Collect(inputs.Read(2023, 10).Lines())
 	sampleLines = []string{
 		"..F7.",
 		".FJ|.",
