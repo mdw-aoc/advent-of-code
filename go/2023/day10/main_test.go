@@ -5,12 +5,11 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/mdw-aoc/inputs/v2/inputs"
+	"github.com/mdw-aoc/inputs"
+	"github.com/mdw-go/funcy/ranger/is"
 	"github.com/mdw-go/set"
 	"github.com/mdw-go/testing/should"
 )
-
-const TODO = -1
 
 var (
 	inputLines = slices.Collect(inputs.Read(2023, 10).Lines())
@@ -73,97 +72,64 @@ func TestSuite(t *testing.T) {
 	should.Run(&Suite{T: should.New(t)}, should.Options.UnitTests())
 }
 
-type Suite struct {
-	*should.T
-}
+type Suite struct{ *should.T }
 
-func (this *Suite) Setup() {
-}
-
-func (this *Suite) TestPart1A() {
+func (this *Suite) TestPart1Samples() {
 	this.So(this.Part1(sampleA), should.Equal, 8)
 }
 func (this *Suite) TestPart1Full() {
 	this.So(this.Part1(inputLines), should.Equal, 6886)
 }
-func (this *Suite) TestPart2A() {
+func (this *Suite) TestPart2Samples() {
+	this.So(this.Part2(sampleA), should.Equal, 1)
 	this.So(this.Part2(sampleB), should.Equal, 4)
-	//this.So(this.Part2(sampleC), should.Equal, 4)
-	//this.So(this.Part2(sampleD), should.Equal, 8)
-	//this.So(this.Part2(sampleE), should.Equal, 10)
+	this.So(this.Part2(sampleC), should.Equal, 4)
+	this.So(this.Part2(sampleD), should.Equal, 8)
+	this.So(this.Part2(sampleE), should.Equal, 10)
 }
-func (this *Suite) SkipTestPart2Full() {
-	this.So(this.Part2(inputLines), should.Equal, TODO)
+func (this *Suite) TestPart2Full() {
+	this.So(this.Part2(inputLines), should.Equal, 371)
 }
 func (this *Suite) Part1(lines []string) any {
-	return CircuitLength(ParseInput(lines)) / 2
+	return len(ParseInput(lines).circuit) / 2
 }
-func (this *Suite) Part2(lines []string) any {
-	return TODO
-}
-
-func CircuitLength(start Point, field map[Point]string) (result int) {
-	queue := []Point{start}
-	frontier := set.Of[Point](start)
-	for {
-		at := queue[0]
-		queue = queue[1:]
-		a, b := follow(at, field)
-		result++
-		if !frontier.Contains(a) {
-			frontier.Add(a)
-			queue = append(queue, a)
-			continue
-		}
-		if !frontier.Contains(b) {
-			frontier.Add(b)
-			queue = append(queue, b)
-			continue
-		}
-		if a == start || b == start {
-			return result
-		}
-
-	}
-}
-func follow(from Point, field map[Point]string) (a, b Point) {
-	n, s, e, w := neighbors(from)
-	switch field[from] {
-	case "|":
-		return n, s
-	case "-":
-		return e, w
-	case "L":
-		return n, e
-	case "F":
-		return s, e
-	case "7":
-		return s, w
-	case "J":
-		return n, w
-	}
-	panic(fmt.Sprintln("cannot follow:", from))
+func (this *Suite) Part2(lines []string) int {
+	world := ParseInput(lines)
+	return len(EnclosedPoints(world.field, world.circuit))
 }
 
 type Point struct{ row, col int }
 
-func ParseInput(lines []string) (start Point, field map[Point]string) {
-	field = make(map[Point]string)
+type World struct {
+	start   Point
+	circuit map[Point]string
+	field   map[Point]string
+}
+
+func ParseInput(lines []string) World {
+	result := World{
+		circuit: make(map[Point]string),
+		field:   make(map[Point]string),
+	}
 	for row, line := range lines {
 		for col, char := range line {
-			if char == '.' {
-				continue
-			}
-			field[Point{row: row, col: col}] = string(char)
+			result.field[Point{row: row, col: col}] = string(char)
 		}
 	}
-	for point, char := range field {
+	for point, char := range result.field {
 		if char == "S" {
-			start = point
-			field[point] = inferS(field, point)
+			result.start = point
+			result.field[point] = inferStartingS(result.field, point)
 		}
 	}
-	return start, field
+	result.circuit = Circuit(result.start, result.field)
+	for point := range result.field {
+		if _, ok := result.circuit[point]; !ok {
+			result.field[point] = "."
+		}
+	}
+
+	return result
 }
 
 func neighbors(p Point) (n, s, e, w Point) {
@@ -173,7 +139,7 @@ func neighbors(p Point) (n, s, e, w Point) {
 	w = Point{row: p.row, col: p.col - 1}
 	return n, s, e, w
 }
-func inferS(field map[Point]string, p Point) string {
+func inferStartingS(field map[Point]string, p Point) string {
 	n, s, e, w := neighbors(p)
 	N, S, E, W := field[n], field[s], field[e], field[w]
 	var pointers string
@@ -210,3 +176,82 @@ func lookupPointers(pointers string) string {
 	}
 	return "."
 }
+
+func Circuit(start Point, field map[Point]string) map[Point]string {
+	queue := []Point{start}
+	frontier := map[Point]string{start: field[start]}
+	for {
+		at := queue[0]
+		queue = queue[1:]
+		a, b := follow(at, field)
+		if _, ok := frontier[a]; !ok {
+			frontier[a] = field[a]
+			queue = append(queue, a)
+			continue
+		}
+		if _, ok := frontier[b]; !ok {
+			frontier[b] = field[b]
+			queue = append(queue, b)
+			continue
+		}
+		if a == start || b == start {
+			return frontier
+		}
+	}
+}
+func follow(from Point, field map[Point]string) (a, b Point) {
+	n, s, e, w := neighbors(from)
+	switch field[from] {
+	case "|":
+		return n, s
+	case "-":
+		return e, w
+	case "L":
+		return n, e
+	case "F":
+		return s, e
+	case "7":
+		return s, w
+	case "J":
+		return n, w
+	}
+	panic(fmt.Sprintln("cannot follow:", from))
+}
+
+func EnclosedPoints(field, circuit map[Point]string) (result []Point) {
+	for point := range field {
+		if _, ok := circuit[point]; ok {
+			continue
+		}
+		if isEnclosed(point, circuit) {
+			result = append(result, point)
+		}
+	}
+	return result
+}
+
+// isEnclosed walks east from the starting point, counting how many times it crosses the circuit.
+// An odd number of crossings (as defined here) means that the starting point is actually
+// outside the circuit.
+// An even number of crossings indicates that the starting point is inside the circuit.
+// 'Crossing' means we have encountered a '|', or a 'L' or a 'J'.
+// If both an 'L' or 'J' are encountered we end up with an even number of crossings because
+// those corner joints equate to a 'U'-bend that can be circumvented: not a crossing.
+// If, say, an 'L' and an '7' are encountered, those corner joints connect pipes above and
+// below the starting point. We'll end up only count the 'L' by this code, so resulting in
+// an odd number and therefore a crossing!
+// Thanks to this video for the tips: https://youtu.be/edVSG8Y_qf8?t=610
+func isEnclosed(point Point, circuit map[Point]string) bool {
+	crossings := 0
+	for col := point.col; col >= 0; col-- {
+		step := Point{point.row, col}
+		if c, ok := circuit[step]; ok {
+			if crossChecks.Contains(c) {
+				crossings++
+			}
+		}
+	}
+	return is.Odd(crossings)
+}
+
+var crossChecks = set.Of("|", "L", "J")

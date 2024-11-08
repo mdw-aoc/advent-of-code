@@ -1,3 +1,5 @@
+github.com/mdw-go/funcy v1.13.0 h1:HHlf+JO/1GvbH6DLtt+QPanf9jHv4nlX9aRE0fteqkE=
+github.com/mdw-go/funcy v1.13.0/go.mod h1:pEMFKhuAq1u6bbXZtw3xskHru4YfabK/Rv9U0UgwAos=
 github.com/mdw-go/set v1.1.0 h1:/p7kL1Skibx9gp8RQwZ740A0gbhVqJbVHJMqgl5sqY8=
 github.com/mdw-go/set v1.1.0/go.mod h1:3lhn+YaNQVLT8xSZmPTpPpUIlS3LyaxyRUHvexnvaqc=
 github.com/mdw-go/testing v1.5.0 h1:o7uprSvVM61lSpnLOKNJ/joFq7zCvm7kwAJ948exV2o=
