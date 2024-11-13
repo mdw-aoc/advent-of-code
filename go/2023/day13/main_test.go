@@ -95,13 +95,13 @@ func (this *Suite) TestPart2Full() {
 func Part1(input string) int { return SummarizePatterns(input, 0) }
 func Part2(input string) int { return SummarizePatterns(input, 1) }
 func SummarizePatterns(input string, diffTarget int) int {
-	var ABOVE, LEFT int
+	var above, left int
 	for _, pattern := range strings.Split(input, "\n\n") {
 		lines := strings.Split(pattern, "\n")
-		ABOVE += Reflect(lines, diffTarget)
-		LEFT += Reflect(Rotate(lines), diffTarget)
+		above += Reflect(lines, diffTarget)
+		left += Reflect(Rotate(lines), diffTarget)
 	}
-	return ABOVE*100 + LEFT
+	return above*100 + left
 }
 func Rotate(lines []string) (columns []string) {
 	for x := 0; x < len(lines[0]); x++ {
