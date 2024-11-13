@@ -13,10 +13,7 @@ import (
 	"github.com/mdw-go/testing/should"
 )
 
-const TODO = -1
-
 var (
-	inputLines     = slices.Collect(inputs.Read(2023, 13).Lines())
 	samplePatternA = []string{
 		"#.##..##.",
 		"..#.##.#.",
@@ -35,9 +32,26 @@ var (
 		"..##..###",
 		"#....#..#",
 	}
+	fullSample = strings.Join([]string{
+		"#.##..##.",
+		"..#.##.#.",
+		"##......#",
+		"##......#",
+		"..#.##.#.",
+		"..##..##.",
+		"#.#.##.#.",
+		"", ////////
+		"#...##..#",
+		"#....#..#",
+		"..##..###",
+		"#####.##.",
+		"#####.##.",
+		"..##..###",
+		"#....#..#",
+	}, "\n")
 	samplePatternC = []string{
 		"####..#.#####",
-		".#.#.#.#.##..",
+		".#.#.#.#.##..", // <- Smudge is second to last '.' (should be '#')
 		"..#.##....#.#",
 		"#...#..##....",
 		"###.####.#.#.",
@@ -60,34 +74,25 @@ type Suite struct {
 	*should.T
 }
 
-func (this *Suite) TestPart1Samples() {
+func (this *Suite) TestRotate() {
 	this.So(Rotate(Rotate(Rotate(Rotate(samplePatternA)))), should.Equal, samplePatternA)
 	this.So(Rotate(Rotate(Rotate(Rotate(samplePatternB)))), should.Equal, samplePatternB)
-
+}
+func (this *Suite) TestPart1Samples() {
 	this.So(Reflect(samplePatternB), should.Equal, 4)
 	this.So(Reflect(Rotate(samplePatternA)), should.Equal, 5)
 	this.So(Reflect(samplePatternC), should.Equal, 12)
-
-	var sample strings.Builder
-	for _, line := range samplePatternA {
-		sample.WriteString(line)
-		sample.WriteString("\n")
-	}
-	sample.WriteString("\n")
-	for _, line := range samplePatternB {
-		sample.WriteString(line)
-		sample.WriteString("\n")
-	}
-	this.So(this.Part1(strings.TrimSpace(sample.String())), should.Equal, 405)
 }
 func (this *Suite) TestPart1Full() {
-	this.So(this.Part1(inputs.Read(2023, 13).String()), should.Equal, 31265)
+	this.So(Part1(strings.TrimSpace(fullSample)), should.Equal, 405)
+	this.So(Part1(inputs.Read(2023, 13).String()), should.Equal, 31265)
 }
 func (this *Suite) TestPart2Samples() {
 }
 func (this *Suite) TestPart2Full() {
 }
-func (this *Suite) Part1(input string) int {
+
+func Part1(input string) int {
 	var ABOVE int
 	var LEFT int
 	patterns := strings.Split(input, "\n\n")
@@ -108,10 +113,6 @@ func (this *Suite) Part1(input string) int {
 	}
 	return ABOVE*100 + LEFT
 }
-func (this *Suite) Part2(lines []string) any {
-	return TODO
-}
-
 func Rotate(lines []string) (columns []string) {
 	for x := 0; x < len(lines[0]); x++ {
 		columns = append(columns, "")
@@ -137,5 +138,9 @@ func Reflect(lines []string) int {
 			return x
 		}
 	}
+
 	return 0
+}
+func Part2(lines []string) any {
+	return -1
 }
