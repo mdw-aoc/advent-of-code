@@ -75,31 +75,31 @@ func (this *Suite) TestRotate() {
 	this.So(Rotate(Rotate(Rotate(Rotate(samplePatternB)))), should.Equal, samplePatternB)
 }
 func (this *Suite) TestPart1Samples() {
-	this.So(Reflect(samplePatternB, Equal), should.Equal, 4)
-	this.So(Reflect(Rotate(samplePatternA), Equal), should.Equal, 5)
-	this.So(Reflect(samplePatternC, Equal), should.Equal, 12)
+	this.So(Reflect(samplePatternB, 0), should.Equal, 4)
+	this.So(Reflect(Rotate(samplePatternA), 0), should.Equal, 5)
+	this.So(Reflect(samplePatternC, 0), should.Equal, 12)
 }
 func (this *Suite) TestPart1Full() {
 	this.So(Part1(strings.TrimSpace(fullSample)), should.Equal, 405)
 	this.So(Part1(inputs.Read(2023, 13).String()), should.Equal, 31265)
 }
 func (this *Suite) TestPart2Samples() {
-	this.So(Reflect(samplePatternA, EqualSmudged), should.Equal, 3)
-	this.So(Reflect(samplePatternB, EqualSmudged), should.Equal, 1)
+	this.So(Reflect(samplePatternA, 1), should.Equal, 3)
+	this.So(Reflect(samplePatternB, 1), should.Equal, 1)
 }
 func (this *Suite) TestPart2Full() {
 	this.So(Part2(strings.TrimSpace(fullSample)), should.Equal, 400)
 	this.So(Part2(inputs.Read(2023, 13).String()), should.Equal, 39359)
 }
 
-func Part1(input string) int { return SummarizePatterns(input, Equal) }
-func Part2(input string) any { return SummarizePatterns(input, EqualSmudged) }
-func SummarizePatterns(input string, equal func(a, b []string) bool) int {
+func Part1(input string) int { return SummarizePatterns(input, 0) }
+func Part2(input string) int { return SummarizePatterns(input, 1) }
+func SummarizePatterns(input string, diffTarget int) int {
 	var ABOVE, LEFT int
 	for _, pattern := range strings.Split(input, "\n\n") {
 		lines := strings.Split(pattern, "\n")
-		ABOVE += Reflect(lines, equal)
-		LEFT += Reflect(Rotate(lines), equal)
+		ABOVE += Reflect(lines, diffTarget)
+		LEFT += Reflect(Rotate(lines), diffTarget)
 	}
 	return ABOVE*100 + LEFT
 }
@@ -112,7 +112,7 @@ func Rotate(lines []string) (columns []string) {
 	}
 	return columns
 }
-func Reflect(lines []string, equal func(a, b []string) bool) int {
+func Reflect(lines []string, diffTarget int) int {
 	for x := 1; x < len(lines); x++ {
 		before := make([]string, x)
 		copy(before, lines[:x])
@@ -124,14 +124,12 @@ func Reflect(lines []string, equal func(a, b []string) bool) int {
 		if len(after) > len(before) {
 			after = after[:len(before)]
 		}
-		if equal(before, after) {
+		if Diff(before, after) == diffTarget {
 			return x
 		}
 	}
 	return 0
 }
-func Equal(a, b []string) bool                 { return slices.Equal(a, b) }
-func EqualSmudged(before, after []string) bool { return Diff(before, after) == 1 }
 func Diff(s1, s2 []string) (result int) {
 	for i := range s1 {
 		a, b := s1[i], s2[i]
