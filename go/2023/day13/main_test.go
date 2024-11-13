@@ -6,9 +6,6 @@ import (
 	"testing"
 
 	"github.com/mdw-aoc/inputs"
-	_ "github.com/mdw-go/funcy"
-	_ "github.com/mdw-go/must"
-	_ "github.com/mdw-go/set"
 	"github.com/mdw-go/testing/should"
 )
 
