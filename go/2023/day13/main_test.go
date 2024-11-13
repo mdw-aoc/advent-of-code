@@ -1,7 +1,6 @@
 package starter
 
 import (
-	"log"
 	"slices"
 	"strings"
 	"testing"
@@ -96,30 +95,14 @@ func (this *Suite) TestPart2Full() {
 	this.So(Part2(inputs.Read(2023, 13).String()), should.Equal, 39359)
 }
 
-func Part1(input string) int {
-	return SummarizePatterns(input, Equal)
-}
-func Part2(input string) any {
-	return SummarizePatterns(input, EqualSmudged)
-}
+func Part1(input string) int { return SummarizePatterns(input, Equal) }
+func Part2(input string) any { return SummarizePatterns(input, EqualSmudged) }
 func SummarizePatterns(input string, equal func(a, b []string) bool) int {
-	var ABOVE int
-	var LEFT int
-	patterns := strings.Split(input, "\n\n")
-	for p, pattern := range patterns {
-		pattern = strings.TrimSpace(pattern)
+	var ABOVE, LEFT int
+	for _, pattern := range strings.Split(input, "\n\n") {
 		lines := strings.Split(pattern, "\n")
-		above := Reflect(lines, equal)
-		if above > 0 {
-			ABOVE += above
-			continue
-		}
-		left := Reflect(Rotate(lines), equal)
-		if left > 0 {
-			LEFT += left
-			continue
-		}
-		log.Panicf("wat %d", p)
+		ABOVE += Reflect(lines, equal)
+		LEFT += Reflect(Rotate(lines), equal)
 	}
 	return ABOVE*100 + LEFT
 }
@@ -153,9 +136,6 @@ func Reflect(lines []string, equal func(a, b []string) bool) int {
 func Equal(a, b []string) bool                 { return slices.Equal(a, b) }
 func EqualSmudged(before, after []string) bool { return Diff(before, after) == 1 }
 func Diff(s1, s2 []string) (result int) {
-	if len(s1) != len(s2) {
-		panic("slices must have equal length")
-	}
 	for i := range s1 {
 		a, b := s1[i], s2[i]
 		for c := range a {
