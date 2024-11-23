@@ -11,8 +11,6 @@ import (
 	"github.com/mdw-go/testing/should"
 )
 
-const TODO = -1
-
 var (
 	inputLines  = slices.Collect(inputs.Read(2023, 16).Lines())
 	sampleLines = []string{
