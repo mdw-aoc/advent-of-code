@@ -6,11 +6,8 @@ import (
 	"testing"
 
 	"github.com/mdw-aoc/inputs"
-	_ "github.com/mdw-go/funcy"
 	"github.com/mdw-go/grid"
-	_ "github.com/mdw-go/must"
 	"github.com/mdw-go/set"
-	_ "github.com/mdw-go/set"
 	"github.com/mdw-go/testing/should"
 )
 
@@ -49,20 +46,61 @@ func (this *Suite) TestPart1Full() {
 	this.So(this.Part1(inputLines), should.Equal, 6795)
 }
 func (this *Suite) TestPart2Samples() {
-	this.So(this.Part2(sampleLines), should.Equal, TODO)
+	this.So(this.Part2(sampleLines), should.Equal, 51)
 }
 func (this *Suite) TestPart2Full() {
-	this.So(this.Part2(inputLines), should.Equal, TODO)
+	this.So(this.Part2(inputLines), should.Equal, 7154)
 }
 func (this *Suite) Part1(lines []string) int {
+	energizedPoints := this.flood(this.parseWorld(lines), Turtle{At: grid.Point[int]{}, To: right})
+	this.emitEnergizedPoints(len(lines), energizedPoints)
+	return energizedPoints.Len()
+}
+func (this *Suite) Part2(lines []string) any {
+	world := this.parseWorld(lines)
+	maxEnergy := 0
+	for n := range len(lines) {
+		// Starting on top row facing down
+		turtle := Turtle{At: grid.NewPoint(n, 0), To: down}
+		energy := this.flood(world, turtle).Len()
+		if energy > maxEnergy {
+			maxEnergy = energy
+		}
+
+		// Starting on bottom row facing up
+		turtle = Turtle{At: grid.NewPoint(n, len(lines)-1), To: up}
+		energy = this.flood(world, turtle).Len()
+		if energy > maxEnergy {
+			maxEnergy = energy
+		}
+
+		// Starting on left column facing right
+		turtle = Turtle{At: grid.NewPoint(0, n), To: right}
+		energy = this.flood(world, turtle).Len()
+		if energy > maxEnergy {
+			maxEnergy = energy
+		}
+
+		// Starting on right column facing left
+		turtle = Turtle{At: grid.NewPoint(len(lines)-1, n), To: left}
+		energy = this.flood(world, turtle).Len()
+		if energy > maxEnergy {
+			maxEnergy = energy
+		}
+	}
+	return maxEnergy
+}
+func (this *Suite) parseWorld(lines []string) map[grid.Point[int]]rune {
 	world := make(map[grid.Point[int]]rune)
 	for y, line := range lines {
 		for x, char := range line {
 			world[grid.NewPoint(x, y)] = char
 		}
 	}
+	return world
+}
+func (this *Suite) flood(world map[grid.Point[int]]rune, turtle Turtle) set.Set[grid.Point[int]] {
 	energized := set.Of[Turtle]()
-	turtle := Turtle{At: grid.Point[int]{}, To: right}
 	queue := []Turtle{turtle}
 	for len(queue) > 0 {
 		turtle, queue = queue[0], queue[1:]
@@ -82,14 +120,12 @@ func (this *Suite) Part1(lines []string) int {
 	for turtle := range energized {
 		energizedPoints.Add(turtle.At)
 	}
-	this.emitEnergizedPoints(lines, energizedPoints)
-	return energizedPoints.Len()
+	return energizedPoints
 }
-
-func (this *Suite) emitEnergizedPoints(lines []string, energizedPoints set.Set[grid.Point[int]]) {
+func (this *Suite) emitEnergizedPoints(width int, energizedPoints set.Set[grid.Point[int]]) {
 	var buffer strings.Builder
-	for y, line := range lines {
-		for x, _ := range line {
+	for y := range width {
+		for x := range width {
 			if energizedPoints.Contains(grid.NewPoint(x, y)) {
 				buffer.WriteString("#")
 			} else {
@@ -134,9 +170,6 @@ func point(d grid.Direction[int], at rune) (result []grid.Direction[int]) {
 		}
 	}
 	return append(result, d)
-}
-func (this *Suite) Part2(lines []string) any {
-	return TODO
 }
 
 type Turtle struct {
