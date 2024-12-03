@@ -13,3 +13,13 @@
 (println 2113135 (diff-lists actual-input))
 (println)
 
+(defn score-similarity [input]
+  (let [lines (str/split input #"\n")
+        pairs (map #(str/split % #"\s") lines)
+        left  (map parse-int (map first pairs))
+        right (frequencies (map parse-int (map last pairs)))]
+    (reduce + (map #(* %1 (get right %1 0)) left))))
+
+(println "Part 2:")
+(println 31       (score-similarity sample-input))
+(println 19097157 (score-similarity actual-input))
