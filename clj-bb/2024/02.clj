@@ -19,7 +19,8 @@
 (println 526 (part1 actual-input))
 
 (defn without [coll index]
-  (concat (take index coll) (drop (inc index) coll)))
+  (let [[before after] (split-at index coll)]
+    (concat before (rest after))))
 (defn has-safe-permutations? [ints]
   (->> (range (count ints))
        (map #(without ints %))
