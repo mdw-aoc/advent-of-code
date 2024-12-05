@@ -13,3 +13,14 @@
 
 (println 161       (parse-multiplications sample-input))
 (println 170068701 (parse-multiplications actual-input))
+
+(def sample-input (slurp "03-sample2.txt")) ; redefine
+
+(defn remove-donts [input]
+  (let [dosplit   (str/split input #"do\(\)")
+        dont      #"don't\(\)"
+        dontsplit (map #(first (str/split % dont)) dosplit)]
+    (apply str dontsplit)))
+
+(println 48       (parse-multiplications (remove-donts sample-input)))
+(println 78683433 (parse-multiplications (remove-donts actual-input)))
