@@ -1,43 +1,63 @@
-(defn prep-input [filename]
-  (as-> filename $ (slurp $) (str/split $ #"\n") (str/join "|" $)))
+(defn prep-input [filename] (str/split (slurp filename) #"\n"))
 (def sample-input (prep-input "04-sample.txt"))
 (def actual-input (prep-input "04-actual.txt"))
 
-(defn upper-diagonal [lines starting-row]
-  (let [rows (range starting-row -1 -1)
-        cols (range (count rows))]
-    (for [[row col] (partition 2 (interleave rows cols))]
-      (nth (nth lines row) col))))
-(defn upper-diagonals [lines]
-  (->> lines count range (map #(upper-diagonal lines %))))
-(defn lower-diagonal [lines col]
-  (let [cols (range col (count (first lines)))
-        rows (range (dec (count lines)) -1 -1)
-        pairs (partition 2 (interleave rows cols))]
-    (for [[row col] (partition 2 (interleave rows cols))]
-      (nth (nth lines row) col))))
-(defn lower-diagonals [lines]
-  (->> lines first count (range 1) (map #(lower-diagonal lines %))))
-(defn rotate45 [text]
-  (let [lines (str/split text #"\|")
-        upper (map #(apply str %) (upper-diagonals lines))
-        lower (map #(apply str %) (lower-diagonals lines))]
-    (str/join "|" (concat upper lower))))
+(defn resolve-char [rows start offset]
+  (let [row (nth rows (+ (first start) (first offset)) nil)
+        col (nth row (+ (second start) (second offset)) nil)]
+    col))
 
-(defn rotate90 [text]
-  (str/join "|"
-    (let [rows (str/split text #"\|")]
-      (reverse
-        (for [column (range (count (first rows)))]
-          (apply str (map #(nth % column) rows)))))))
+(defn slice [rows coords start]
+  (let [chars (map (partial resolve-char rows start) coords)]
+    (when (every? (complement nil?) chars)
+      (apply str chars))))
 
-(defn rotations [text]
-  (let [nineties   (take 4 (iterate rotate90 text))
-        fortyfives (map rotate45 nineties)]
-    (str/join "||" (interleave nineties fortyfives))))
+(defn all-coords [rows]
+  (for [row (range (count rows))
+        col (range (count (first rows)))]
+    [row col]))
 
-(defn part1 [text]
-  (count (re-seq #"XMAS" (rotations text))))
+(defn pattern-matches [pattern rows]
+  (->> rows
+       all-coords
+       (map (partial slice rows (:coords pattern)))
+       (remove nil?)
+       (filter #(= (:expect pattern) %))))
 
-(println 18   (part1 sample-input))
-(println 2545 (part1 actual-input))
+(defn rotate90 [rows]
+  (reverse
+    (for [column (range (count (first rows)))]
+      (apply str (map #(nth % column) rows)))))
+
+(defn rotated-pattern-matches [rows pattern]
+  (->> rows
+       (iterate rotate90)
+       (take 4)
+       (map (partial pattern-matches pattern))))
+
+(def part1-horizontal
+  {:coords [[0 0] [0 1] [0 2] [0 3]]
+   :expect "XMAS"})
+
+(def part1-diagonal
+  {:coords [[0 0] [1 1] [2 2] [3 3]]
+   :expect "XMAS"})
+
+(defn all-matches [rows & patterns]
+  (->> patterns
+       (map (partial rotated-pattern-matches rows))
+       flatten
+       count))
+
+(println 18   (all-matches sample-input part1-horizontal part1-diagonal))
+(println 2545 (all-matches actual-input part1-horizontal part1-diagonal))
+
+(def part2-cross
+  {:coords [[0 0] ,,,,, [0 2]
+                  [1 1]
+            [2 0] ,,,,, [2 2]]
+   :expect "MMASS"})
+
+(println 9    (all-matches sample-input part2-cross))
+(println 1886 (all-matches actual-input part2-cross))
+
