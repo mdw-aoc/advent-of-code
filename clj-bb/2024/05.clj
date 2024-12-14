@@ -36,7 +36,7 @@
       (let [part (take i update)]
         (if (is-valid? rules part)
           (recur (inc i) update)
-          (recur 0 (swap-items update (- i 2) (- i 1))))))))
+          (recur 2 (swap-items update (- i 2) (- i 1))))))))
 
 (defn part2 [input]
   (let [parsed  (parse-input input)
