@@ -63,28 +63,34 @@
          (<= at-row max-row)
          (<= at-col max-col))))
 
-(defn part1 [input]
-  (->> input
-       parse-input
+(defn make-rounds [state]
+  (->> state
        (iterate patrol)
        (drop-while #(and (in-bounds? %1) (not (:looped? %1))))
        first))
 
+(defn part1 [input]
+  (->> input parse-input make-rounds :path set count))
+
 (def sample-input (slurp "06-sample.txt"))
 (def actual-input (slurp "06-actual.txt"))
 
-(println 41   (->> sample-input part1 :path set count))
-(println 4752 (->> actual-input part1 :path set count))
+(println 41   (part1 sample-input))
+(println 4752 (part1 actual-input))
 
 (defn part2 [input]
   (->> input
-       part1
+       parse-input
+       make-rounds
        :path
        set
-       ; TODO: remove starting coord
+       (remove #(= % (:start (parse-input input)))) ; remove starting coord
        (map #(update-in (parse-input input) [:obstacles] conj %))
-       (map part1)
+       (map make-rounds)
        (filter :looped?)
        count))
  
+(println 6    (part2 sample-input))
+(println "Stand by, part 2 takes a while...")
+(println 1719 (part2 actual-input)) ; long-running!
 
