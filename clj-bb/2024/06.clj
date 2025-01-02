@@ -34,6 +34,7 @@
                                 (update-in [:obstacles] conj [row col]))
                             input row (inc col))))))))
 
+
 (defn move [from direction]
   (vec (map + from direction)))
 
