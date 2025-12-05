@@ -3,12 +3,13 @@ package main
 import (
 	"bufio"
 	"os"
+	"strconv"
 	"testing"
 )
 
 func Test(t *testing.T) {
-	assertEqual(t, 357, calculateTotalJoltage("sample-input.txt"))
-	assertEqual(t, 17332, calculateTotalJoltage("input.txt"))
+	assertEqual(t, 357, calculateTotalJoltage("sample-input.txt", 2))
+	assertEqual(t, 17332, calculateTotalJoltage("input.txt", 2))
 }
 func assertEqual(t *testing.T, expected, actual any) {
 	t.Log(actual)
@@ -17,39 +18,32 @@ func assertEqual(t *testing.T, expected, actual any) {
 		t.Errorf("Expected %v, got %v", expected, actual)
 	}
 }
-
-func calculateTotalJoltage(filename string) (result int) {
+func calculateTotalJoltage(filename string, batteryCount int) (result int) {
 	file, err := os.Open(filename)
 	if err != nil {
 		panic(err)
 	}
 	defer func() { _ = file.Close() }()
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		var hi1, hi2 rune
-		var i int
-		line := scanner.Text()
-		for c := range line[:len(line)-1] {
-			r := rune(line[c])
-			if r > hi1 {
-				hi1 = r
-				i = c
-			}
-		}
-		for c := range line {
-			if c <= i {
-				continue
-			}
-			r := rune(line[c])
-			if r > hi2 {
-				hi2 = r
-			}
-		}
-		result += joltage(hi1, hi2)
+	for scanner := bufio.NewScanner(file); scanner.Scan(); {
+		result += calculateJoltage(scanner.Text(), batteryCount)
 	}
 	return result
 }
-
-func joltage(a, b rune) int {
-	return (10 * (int(a) - '0')) + (int(b) - '0')
+func calculateJoltage(line string, batteryCount int) int {
+	start, powered := 0, ""
+	for remaining := batteryCount; remaining > 0; remaining-- {
+		maxI, maxC := 0, '0'
+		for i, c := range line[start:(len(line) - remaining + 1)] {
+			if c > maxC {
+				maxC, maxI = c, i
+			}
+		}
+		start += maxI + 1
+		powered += string(maxC)
+	}
+	return parseInt(powered)
+}
+func parseInt(s string) int {
+	n, _ := strconv.Atoi(s)
+	return n
 }
