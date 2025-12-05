@@ -10,6 +10,8 @@ import (
 func Test(t *testing.T) {
 	assertEqual(t, 357, calculateTotalJoltage("sample-input.txt", 2))
 	assertEqual(t, 17332, calculateTotalJoltage("input.txt", 2))
+	assertEqual(t, 3121910778619, calculateTotalJoltage("sample-input.txt", 12))
+	assertEqual(t, 172516781546707, calculateTotalJoltage("input.txt", 12))
 }
 func assertEqual(t *testing.T, expected, actual any) {
 	t.Log(actual)
