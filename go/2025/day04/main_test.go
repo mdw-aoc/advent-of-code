@@ -11,7 +11,7 @@ func Test(t *testing.T) {
 	assertEqual(t, 13, len(accessibleRolls(parseWorld("sample-input.txt"))))
 	assertEqual(t, 1533, len(accessibleRolls(parseWorld("input.txt"))))
 	assertEqual(t, 43, removeAll(parseWorld("sample-input.txt")))
-	assertEqual(t, 43, removeAll(parseWorld("input.txt")))
+	assertEqual(t, 9206, removeAll(parseWorld("input.txt")))
 }
 func assertEqual(t *testing.T, expected, actual any) {
 	t.Log(actual)
