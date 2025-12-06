@@ -10,6 +10,8 @@ import (
 func Test(t *testing.T) {
 	assertEqual(t, 13, len(accessibleRolls(parseWorld("sample-input.txt"))))
 	assertEqual(t, 1533, len(accessibleRolls(parseWorld("input.txt"))))
+	assertEqual(t, 43, removeAll(parseWorld("sample-input.txt")))
+	assertEqual(t, 43, removeAll(parseWorld("input.txt")))
 }
 func assertEqual(t *testing.T, expected, actual any) {
 	t.Log(actual)
@@ -19,11 +21,24 @@ func assertEqual(t *testing.T, expected, actual any) {
 	}
 }
 
+func removeAll(world World) (result int) {
+	for {
+		removed := removeOnce(world)
+		if removed == 0 {
+			return result
+		}
+		result += removed
+	}
+}
+func removeOnce(world World) int {
+	accessible := accessibleRolls(world)
+	for _, loc := range accessible {
+		delete(world, loc)
+	}
+	return len(accessible)
+}
 func accessibleRolls(world World) (result []Location) {
 	for loc := range world {
-		if !world.isOccupied(loc) {
-			continue
-		}
 		count := 0
 		for neighbor := range loc.neighbors8() {
 			if world.isOccupied(neighbor) {
@@ -48,7 +63,9 @@ func parseWorld(filename string) World {
 	for row := 0; scanner.Scan(); row++ {
 		line := scanner.Text()
 		for col, c := range line {
-			result[Location{row: row, col: col}] = c == '@'
+			if c == '@' {
+				result[Location{row: row, col: col}] = struct{}{}
+			}
 		}
 	}
 	return result
@@ -73,12 +90,9 @@ func (this Location) neighbors8() iter.Seq[Location] {
 	}
 }
 
-type World map[Location]bool
+type World map[Location]struct{}
 
-func (this World) isInside(loc Location) bool {
+func (this World) isOccupied(loc Location) bool {
 	_, ok := this[loc]
 	return ok
-}
-func (this World) isOccupied(loc Location) bool {
-	return this.isInside(loc) && this[loc]
 }
