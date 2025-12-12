@@ -2,7 +2,9 @@ package main
 
 import (
 	"bufio"
+	"cmp"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -11,14 +13,19 @@ import (
 func Test(t *testing.T) {
 	assertEqual(t, 3, countFreshIngredients("sample-input.txt"))
 	assertEqual(t, 598, countFreshIngredients("input.txt"))
+	assertEqual(t, 14, countFreshInventory("sample-input.txt"))
+	assertEqual(t, 360341832208407, countFreshInventory("input.txt"))
 }
+
 func assertEqual(t *testing.T, expected, actual any) {
-	t.Log(actual)
-	if expected != actual {
-		t.Helper()
+	t.Helper()
+	if expected == actual {
+		t.Log(actual)
+	} else {
 		t.Errorf("Got: %v (Want: %v)", actual, expected)
 	}
 }
+
 func countFreshIngredients(filename string) (result int) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -50,4 +57,49 @@ func countFreshIngredients(filename string) (result int) {
 		}
 	}
 	return result
+}
+func countFreshInventory(filename string) (total int) {
+	file, err := os.Open(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer func() { _ = file.Close() }()
+	var ranges []Range
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			break
+		}
+		rawLo, rawHi, ok := strings.Cut(line, "-")
+		if !ok {
+			panic("invalid line: " + line)
+		}
+		lo, _ := strconv.Atoi(rawLo)
+		hi, _ := strconv.Atoi(rawHi)
+		ranges = append(ranges, Range{
+			Lo: min(lo, hi),
+			Hi: max(lo, hi),
+		})
+	}
+	ranges = slices.Compact(slices.SortedFunc(slices.Values(ranges), func(a, b Range) int {
+		return cmp.Compare(a.Lo, b.Lo)
+	}))
+	var at int
+	for _, r := range ranges {
+		if at <= r.Lo { // gap
+			total += r.Hi - r.Lo + 1
+			at = r.Hi + 1
+		} else if r.Hi <= at { // already counted
+			continue
+		} else { // overlap
+			total += r.Hi - at + 1
+			at = r.Hi + 1
+		}
+	}
+	return total
+}
+
+type Range struct {
+	Lo, Hi int
 }
