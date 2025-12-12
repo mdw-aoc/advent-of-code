@@ -87,15 +87,16 @@ func countFreshInventory(filename string) (total int) {
 	}))
 	var at int
 	for _, r := range ranges {
-		if at <= r.Lo { // gap
-			total += r.Hi - r.Lo + 1
-			at = r.Hi + 1
+		var lo int
+		if at <= r.Lo { // jump over gap
+			lo = r.Lo
 		} else if r.Hi <= at { // already counted
 			continue
-		} else { // overlap
-			total += r.Hi - at + 1
-			at = r.Hi + 1
+		} else { // account for overlap
+			lo = at
 		}
+		total += r.Hi - lo + 1
+		at = r.Hi + 1
 	}
 	return total
 }
