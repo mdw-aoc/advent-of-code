@@ -33,24 +33,11 @@ func countFreshIngredients(filename string) (result int) {
 	}
 	defer func() { _ = file.Close() }()
 	scanner := bufio.NewScanner(file)
-	var fresh []int
-	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" {
-			break
-		}
-		rawLo, rawHi, ok := strings.Cut(line, "-")
-		if !ok {
-			panic("invalid line: " + line)
-		}
-		lo, _ := strconv.Atoi(rawLo)
-		hi, _ := strconv.Atoi(rawHi)
-		fresh = append(fresh, lo, hi)
-	}
+	ranges := scanRanges(scanner)
 	for scanner.Scan() {
 		n, _ := strconv.Atoi(scanner.Text())
-		for x := 0; x < len(fresh); x += 2 {
-			if fresh[x] <= n && n <= fresh[x+1] {
+		for _, r := range ranges { // a binary search here would be more efficient
+			if r.Lo <= n && n <= r.Hi {
 				result++
 				break
 			}
@@ -64,29 +51,9 @@ func countFreshInventory(filename string) (total int) {
 		panic(err)
 	}
 	defer func() { _ = file.Close() }()
-	var ranges []Range
 	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" {
-			break
-		}
-		rawLo, rawHi, ok := strings.Cut(line, "-")
-		if !ok {
-			panic("invalid line: " + line)
-		}
-		lo, _ := strconv.Atoi(rawLo)
-		hi, _ := strconv.Atoi(rawHi)
-		ranges = append(ranges, Range{
-			Lo: min(lo, hi),
-			Hi: max(lo, hi),
-		})
-	}
-	ranges = slices.Compact(slices.SortedFunc(slices.Values(ranges), func(a, b Range) int {
-		return cmp.Compare(a.Lo, b.Lo)
-	}))
 	var at int
-	for _, r := range ranges {
+	for _, r := range scanRanges(scanner) {
 		var lo int
 		if at <= r.Lo { // jump over gap
 			lo = r.Lo
@@ -99,6 +66,28 @@ func countFreshInventory(filename string) (total int) {
 		at = r.Hi + 1
 	}
 	return total
+}
+
+func scanRanges(scanner *bufio.Scanner) (results []Range) {
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			break
+		}
+		rawLo, rawHi, ok := strings.Cut(line, "-")
+		if !ok {
+			panic("invalid line: " + line)
+		}
+		lo, _ := strconv.Atoi(rawLo)
+		hi, _ := strconv.Atoi(rawHi)
+		results = append(results, Range{
+			Lo: min(lo, hi),
+			Hi: max(lo, hi),
+		})
+	}
+	return slices.Compact(slices.SortedFunc(slices.Values(results), func(a, b Range) int {
+		return cmp.Compare(a.Lo, b.Lo)
+	}))
 }
 
 type Range struct {
