@@ -1,17 +1,21 @@
 package main
 
 import (
-	"bufio"
 	"os"
 	"reflect"
-	"strconv"
 	"strings"
 	"testing"
 )
 
 func Test(t *testing.T) {
-	assertEqual(t, 4277556, completeWorksheet(scanWorksheet("sample-input.txt")))
-	assertEqual(t, 3261038365331, completeWorksheet(scanWorksheet("input.txt")))
+	samplePart1, samplePart2 := solve("sample-input.txt")
+	realPart1, realPart2 := solve("input.txt")
+
+	assertEqual(t, 4277556, samplePart1)
+	assertEqual(t, 3261038365331, realPart1)
+
+	assertEqual(t, 0, samplePart2)
+	assertEqual(t, 0, realPart2)
 }
 func assertEqual(t *testing.T, expected, actual any) {
 	t.Helper()
@@ -22,30 +26,25 @@ func assertEqual(t *testing.T, expected, actual any) {
 	}
 }
 
-func scanWorksheet(filename string) (worksheet [][]int, operations []string) {
-	file, err := os.Open(filename)
+func solve(filename string) (part1, part2 int) {
+	worksheet1, worksheet2, operations := scanWorksheet(filename)
+	part1 = completeWorksheet(worksheet1, operations)
+	part2 = completeWorksheet(worksheet2, operations)
+	return part1, part2
+}
+func scanWorksheet(filename string) (worksheet1, worksheet2 [][]int, operations []string) {
+	content, err := os.ReadFile(filename)
 	if err != nil {
 		panic(err)
 	}
-	defer func() { _ = file.Close() }()
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		fields := strings.Fields(line)
-		if fields[0] == "+" || fields[0] == "*" {
-			operations = fields[:]
-		} else if line == "" {
-			continue
-		} else {
-			var record []int
-			for _, field := range fields {
-				n, _ := strconv.Atoi(field)
-				record = append(record, n)
-			}
-			worksheet = append(worksheet, record)
-		}
+	lines := strings.Split(string(content), "\n")
+	rawOps := lines[len(lines)-1]
+	_ = rawOps
+	for c := range len(lines[0]) {
+		_ = c // TODO build both vertical and horizontal numbers
 	}
-	return worksheet, operations
+	operations = strings.Fields(lines[len(lines)-1])
+	return worksheet1, worksheet2, operations
 }
 func completeWorksheet(worksheet [][]int, operations []string) (total int) {
 	for c := range len(worksheet[0]) {
