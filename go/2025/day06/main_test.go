@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -14,8 +15,8 @@ func Test(t *testing.T) {
 	assertEqual(t, 4277556, samplePart1)
 	assertEqual(t, 3261038365331, realPart1)
 
-	assertEqual(t, 0, samplePart2)
-	assertEqual(t, 0, realPart2)
+	assertEqual(t, 3263827, samplePart2)
+	assertEqual(t, 8342588849093, realPart2)
 }
 func assertEqual(t *testing.T, expected, actual any) {
 	t.Helper()
@@ -38,22 +39,60 @@ func scanWorksheet(filename string) (worksheet1, worksheet2 [][]int, operations 
 		panic(err)
 	}
 	lines := strings.Split(string(content), "\n")
-	rawOps := lines[len(lines)-1]
-	_ = rawOps
-	for c := range len(lines[0]) {
-		_ = c // TODO build both vertical and horizontal numbers
+	for l := range lines {
+		lines[l] = lines[l] + "    " // pad lines so we consistently detect whitespace at the end of each line.
 	}
-	operations = strings.Fields(lines[len(lines)-1])
+	rawOps := lines[len(lines)-1]
+	lines = lines[:len(lines)-1]
+	var verticals = make([]string, len(lines))
+	var horizontals = make([]string, 4)
+	var verticalOffset int
+	for c := range rawOps {
+		if allDigitsBlank(c, lines) { // + or *
+			var vertical []int
+			var horizontal []int
+			for _, raw := range verticals {
+				parsed, _ := strconv.Atoi(strings.TrimSpace(raw))
+				if parsed != 0 {
+					vertical = append(vertical, parsed)
+				}
+			}
+			for _, raw := range horizontals {
+				parsed, _ := strconv.Atoi(strings.TrimSpace(raw))
+				if parsed != 0 {
+					horizontal = append(horizontal, parsed)
+				}
+			}
+			worksheet1 = append(worksheet1, horizontal)
+			worksheet2 = append(worksheet2, vertical)
+			verticals = make([]string, len(lines))
+			horizontals = make([]string, 4)
+			verticalOffset = 0
+			continue
+		}
+		for l, line := range lines {
+			verticals[verticalOffset] += string(line[c])
+			horizontals[l] += string(line[c])
+		}
+		verticalOffset++
+	}
+	operations = strings.Fields(rawOps)
 	return worksheet1, worksheet2, operations
 }
-func completeWorksheet(worksheet [][]int, operations []string) (total int) {
-	for c := range len(worksheet[0]) {
-		op := operations[c]
-		var values []int
-		for r := range worksheet {
-			values = append(values, worksheet[r][c])
+func allDigitsBlank(c int, lines []string) bool {
+	for _, line := range lines {
+		if line[c] != ' ' {
+			return false
 		}
-		total += reduce(op, values...)
+	}
+	return true
+}
+func completeWorksheet(worksheet [][]int, operations []string) (total int) {
+	for r, row := range worksheet {
+		if row != nil {
+			rowTotal := reduce(operations[r], row...)
+			total += rowTotal
+		}
 	}
 	return total
 }
