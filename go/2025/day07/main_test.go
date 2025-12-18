@@ -2,14 +2,19 @@ package main
 
 import (
 	"bufio"
+	"maps"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 )
 
 func Test(t *testing.T) {
 	assertEqual(t, 21, part1("sample-input.txt"))
 	assertEqual(t, 1717, part1("input.txt"))
+
+	assertEqual(t, 40, part2("sample-input.txt"))
+	assertEqual(t, 231507396180012, part2("input.txt"))
 }
 func assertEqual(t *testing.T, expected, actual any) {
 	t.Helper()
@@ -73,6 +78,35 @@ func countSplits(start Point, splitters *Set[Point]) (result int) {
 			}
 		}
 		streams = next
+	}
+	return result
+}
+
+// part2 is a translation of Peter Norvig's amazingly concise solution:
+// https://github.com/norvig/pytudes/blob/main/ipynb/Advent-2025.ipynb
+// It's a perfect example of what was said on today's solution megathread:
+// > It's taken ten years, but I've finally learnt not to model every subatomic
+// > particle in the domain and just count stuff.
+// https://www.reddit.com/r/adventofcode/comments/1pg9w66/comment/nu897my/
+func part2(filename string) (result int) {
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+	manifold := strings.Split(string(content), "\n")
+	start := strings.Index(manifold[0], "S")
+	beams := map[int]int{start: 1}
+	for _, line := range manifold {
+		for key, value := range maps.All(beams) {
+			if line[key] == '^' {
+				beams[key-1] += value
+				beams[key+0] -= value
+				beams[key+1] += value
+			}
+		}
+	}
+	for value := range maps.Values(beams) {
+		result += value
 	}
 	return result
 }
